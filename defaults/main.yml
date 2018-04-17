@@ -1,0 +1,5 @@
+postfix__base_packages: [ 'postfix', 'postfix-pcre', 'bsd-mailx', 'make',
+                          'ssl-cert', 'ca-certificates' ]
+         
+postfix__purge_packages: [ 'exim4-base', 'exim4-config',
+                           'exim4-daemon-light', 'nullmailer' ]
