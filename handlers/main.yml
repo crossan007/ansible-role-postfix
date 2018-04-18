@@ -17,3 +17,6 @@
   service:
     name: 'postfix'
     state: 'reloaded'
+
+- name: Reload postfix aliases
+  command: /usr/bin/newaliases &&  /usr/sbin/postalias /etc/postfix/aliases

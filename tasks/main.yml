@@ -9,6 +9,55 @@
     - '{{ postfix__base_packages }}'
   when: ansible_pkg_mgr == 'apt'
 
+- name: Generate Postfix 'main.cf' configuration
+  template:
+    src: 'postfix/main.cf.j2'
+    dest: '/etc/postfix/main.cf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: [ 'Check postfix and reload' ]
+
+- name: Generate Postfix 'master.cf' configuration
+  template:
+    src: 'postfix/master.cf.j2'
+    dest: '/etc/postfix/master.cf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: [ 'Check postfix and reload' ]
+
+- name: Generate Postfix 'virtual maps' configuration
+  template:
+    src: 'postfix/virtual.j2'
+    dest: '/etc/postfix/virtual'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: [ 'Check postfix and reload' ]
+
+- name: Generate 'alias maps' configuration
+  template:
+    src: 'postfix/aliases.j2'
+    dest: '/etc/aliases'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: [ 'Check postfix and reload' ]
+
+- name: Enable postfix in UFW
+  ufw:
+    rule: allow
+    name: Postfix
+
+- name: Enable postfix systemd service
+  systemd:
+    name: postfix
+    state: started
+    enabled: True
+
+
+
 #- name: Purge other SMTP servers
 #  apt:
 #    name: '{{ item }}'
@@ -87,15 +136,6 @@
 #    owner: 'root'
 #    group: 'root'
 #    mode: '0644'
-#
-- name: Generate Postfix 'main.cf' configuration
-  template:
-    src: 'postfix/main.cf.j2'
-    dest: '/etc/postfix/main.cf'
-    owner: 'root'
-    group: 'root'
-    mode: '0644'
-  notify: [ 'Check postfix and reload' ]
 #
 #- name: Generate Postfix 'master.cf' configuration
 #  template:
