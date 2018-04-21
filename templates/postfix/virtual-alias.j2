@@ -1,0 +1,5 @@
+{% for a in mail_virtual_aliases %}
+{% for user,alias in a.items() %}
+{{user}}    {{alias}}
+{% endfor %}
+{% endfor %}

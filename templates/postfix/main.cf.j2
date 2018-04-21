@@ -2,12 +2,11 @@
 ## These are all default Postfix settings that we won't change
 alias_maps = hash:/etc/aliases
 alias_database = hash:/etc/aliases
-append_dot_mydomain = no
+append_dot_mydomain = yes
 biff = no
 broken_sasl_auth_clients = yes
 inet_interfaces = all
-mailbox_command = /usr/lib/dovecot/deliver -c
-	/etc/dovecot/conf.d/01-mail-stack-delivery.conf -m "${EXTENSION}"
+mailbox_command = /usr/lib/dovecot/deliver -c /etc/dovecot/dovecot.conf -m "${EXTENSION}"
 mailbox_size_limit = 0
 myorigin = {{ mail_hostname | mandatory }}
 readme_directory = no
@@ -29,8 +28,9 @@ tls_random_source = dev:/dev/urandom
 
 ## Your mail server identity options
 myhostname = {{ mail_hostname | mandatory }}
-mydestination = {{ mail_my_desination | mandatory }}
-mynetworks = 127.0.0.0/8 192.168.0.0/24 [::ffff:127.0.0.0]/104 [::1]/128
+mydestination = {{ mail_my_domain | mandatory }}
+mydomain = {{mail_my_domain}}
+mynetworks = {{mail_my_networks}}
 
 ## Customized smtpd paramters
 smtpd_banner = $myhostname ESMTP
@@ -38,13 +38,12 @@ smtpd_helo_required = yes
 smtpd_helo_restrictions = permit_mynetworks,
 	reject_non_fqdn_helo_hostname, reject_invalid_helo_hostname,
 	reject_unknown_helo_hostname, permit
-smtpd_recipient_restrictions = reject_unknown_client_hostname,
+smtpd_recipient_restrictions = permit_mynetworks, reject_unknown_client_hostname,
 	reject_unknown_sender_domain, reject_unknown_recipient_domain,
-	reject_unauth_pipelining, permit_mynetworks,
-	permit_sasl_authenticated, reject_unauth_destination, 
+	reject_unauth_pipelining, permit_sasl_authenticated, reject_unauth_destination, 
 	reject_invalid_hostname, reject_non_fqdn_sender
-smtpd_sender_restrictions = reject_unknown_sender_domain,
-	reject_sender_login_mismatch
+smtpd_sender_restrictions = permit_mynetworks, reject_unknown_sender_domain,
+	reject_sender_login_mismatch,
 smtpd_sender_login_maps = $virtual_mailbox_maps
 
 ## Dealing with rejection: use permanent 550 errors to stop retries
@@ -63,12 +62,10 @@ smtpd_tls_security_level = may
 smtpd_tls_session_cache_timeout = 3600s
 
 ## Customized Dovecot and virtual user-specific settings
-canonical_maps = hash:/etc/postfix/canonical
+canonical_maps = hash:/etc/postfix/virtual-alias
 home_mailbox = Maildir/
-message_size_limit = 104857600
-virtual_alias_maps = hash:/etc/postfix/virtual
-virtual_mailbox_domains = hash:/etc/postfix/virtual-mailbox-domains
-virtual_mailbox_maps = hash:/etc/postfix/virtual-mailbox-users
+message_size_limit = {{mail_size_limit}}
+virtual_alias_maps = hash:/etc/postfix/virtual-alias
 virtual_transport = dovecot
 
 ## This setting will generate an error if you restart Postfix before
