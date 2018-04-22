@@ -27,23 +27,32 @@
     mode: '0644'
   notify: [ 'Check postfix and reload' ]
 
-- name: Generate Postfix 'virtual maps' configuration
+- name: Generate Postfix virtual alias maps configuration
   template:
-    src: 'postfix/virtual-alias.j2'
-    dest: '/etc/postfix/virtual-alias'
+    src: 'postfix/virtual-alias-maps.j2'
+    dest: '/etc/postfix/virtual-alias-maps'
     owner: 'root'
     group: 'root'
     mode: '0644'
-  notify: [ 'Check postfix and reload' ]
+  notify: [ 'Regenerate Alias Maps' ]
+
+- name: Generate Postfix virtual alias domains configuration
+  template:
+    src: 'postfix/virtual-alias-domains.j2'
+    dest: '/etc/postfix/virtual-alias-domains'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: [ 'Regenerate Domain Aliases' ]
 
 - name: Generate 'alias maps' configuration
   template:
-    src: 'postfix/aliases.j2'
-    dest: '/etc/aliases'
+    src: 'postfix/alias.j2'
+    dest: '/etc/postfix/alias'
     owner: 'root'
     group: 'root'
     mode: '0644'
-  notify: [ 'Check postfix and reload' ]
+  notify: [ 'Regenerate Aliases' ]  
 
 - name: Enable postfix in UFW
   ufw:

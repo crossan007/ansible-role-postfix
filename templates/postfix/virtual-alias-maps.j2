@@ -1,0 +1,13 @@
+{% if mail_virtual_alias_maps %}
+{% for a in mail_virtual_alias_maps %}
+{% for user,alias in a.items() %}
+{{user}} {{alias}}
+{% endfor %}
+{% endfor %}
+{% endif %}
+{% if mail_virtual_domains %}
+{% for a in mail_virtual_domains %}
+@{{a}} @{{mail_my_domain}}
+{% endfor %}
+{% endif %}
+

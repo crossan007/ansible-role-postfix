@@ -1,14 +1,29 @@
 ## Mainly based off: https://arstechnica.com/information-technology/2014/03/taking-e-mail-back-part-2-arming-your-server-with-postfix-dovecot/2/
 ## These are all default Postfix settings that we won't change
-alias_maps = hash:/etc/aliases
-alias_database = hash:/etc/aliases
+## Alias maps explination: https://serverfault.com/questions/644306/confused-about-alias-maps-and-virtual-alias-maps
+## https://serverfault.com/questions/415274/postfix-what-exactly-are-alias-domains
+
+## Your mail server identity options
+myhostname = {{ mail_hostname | mandatory }}
+mydomain = {{mail_my_domain}}
+myorigin = $mydomain
+mydestination = {{ mail_my_domain | mandatory }}
+mynetworks = {{mail_my_networks}}
+
+# Aliases are only use for _local_ deliveries..
+alias_maps = hash:/etc/postfix/alias
+alias_database = hash:/etc/postfix/alias
+
+# Virtual maps for incoming mail
+virtual_alias_domains = hash:/etc/postfix/virtual-alias-domains
+virtual_alias_maps = hash:/etc/postfix/virtual-alias-maps
+
 append_dot_mydomain = yes
 biff = no
 broken_sasl_auth_clients = yes
 inet_interfaces = all
 mailbox_command = /usr/lib/dovecot/deliver -c /etc/dovecot/dovecot.conf -m "${EXTENSION}"
 mailbox_size_limit = 0
-myorigin = {{ mail_hostname | mandatory }}
 readme_directory = no
 recipient_delimiter = +
 relayhost =
@@ -23,14 +38,6 @@ smtpd_tls_auth_only = yes
 smtpd_tls_received_header = yes
 smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
 tls_random_source = dev:/dev/urandom
-
-## Settings below this line are things we're modifying or adding
-
-## Your mail server identity options
-myhostname = {{ mail_hostname | mandatory }}
-mydestination = {{ mail_my_domain | mandatory }}
-mydomain = {{mail_my_domain}}
-mynetworks = {{mail_my_networks}}
 
 ## Customized smtpd paramters
 smtpd_banner = $myhostname ESMTP
@@ -62,10 +69,9 @@ smtpd_tls_security_level = may
 smtpd_tls_session_cache_timeout = 3600s
 
 ## Customized Dovecot and virtual user-specific settings
-canonical_maps = hash:/etc/postfix/virtual-alias
 home_mailbox = Maildir/
 message_size_limit = {{mail_size_limit}}
-virtual_alias_maps = hash:/etc/postfix/virtual-alias
+
 virtual_transport = dovecot
 
 ## This setting will generate an error if you restart Postfix before

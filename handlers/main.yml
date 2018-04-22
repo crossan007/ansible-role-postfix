@@ -18,5 +18,16 @@
     name: 'postfix'
     state: 'reloaded'
 
-- name: Reload postfix aliases
-  command: /usr/bin/newaliases &&  /usr/sbin/postalias /etc/postfix/aliases
+- name: Regenerate Aliases
+  command: /usr/sbin/postalias /etc/postfix/alias 
+  notify: [ 'Check postfix and restart' ] 
+
+- name: Regenerate Domain Aliases
+  command: /usr/sbin/postmap /etc/postfix/virtual-alias-domains
+  notify: [ 'Check postfix and restart' ] 
+
+- name: Regenerate Alias Maps
+  command:  /usr/sbin/postmap  /etc/postfix/virtual-alias-maps
+  notify: [ 'Check postfix and restart' ] 
+
+
