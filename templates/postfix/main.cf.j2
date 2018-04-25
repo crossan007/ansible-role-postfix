@@ -7,7 +7,8 @@
 myhostname = {{ mail_hostname | mandatory }}
 mydomain = {{mail_my_domain}}
 myorigin = $mydomain
-mydestination = {{ mail_my_domain | mandatory }}
+mydestination = {% for a in mail_my_destination %}{{a}} {% endfor %}
+
 mynetworks = {{mail_my_networks}}
 
 # Aliases are only use for _local_ deliveries..
@@ -18,11 +19,14 @@ alias_database = hash:/etc/postfix/alias
 virtual_alias_domains = hash:/etc/postfix/virtual-alias-domains
 virtual_alias_maps = hash:/etc/postfix/virtual-alias-maps
 
+# fix delivering to incorrect /vmail/<u> instead of /vmail/<domain>/<u>
+local_transport = lmtp:unix:private/dovecot-lmtp
+
 append_dot_mydomain = yes
 biff = no
 broken_sasl_auth_clients = yes
 inet_interfaces = all
-mailbox_command = /usr/lib/dovecot/deliver -c /etc/dovecot/dovecot.conf -m "${EXTENSION}"
+mailbox_command = /usr/lib/dovecot/dovecot-lda -f "$SENDER" -a "$RECIPIENT"
 mailbox_size_limit = 0
 readme_directory = no
 recipient_delimiter = +
@@ -32,7 +36,7 @@ smtpd_sasl_auth_enable = yes
 smtpd_sasl_authenticated_header = yes
 
 # This makes Postfix use Dovecot for authenticating SMTP sessions
-smtpd_sasl_path = private/dovecot-auth
+smtpd_sasl_path = private/auth
 smtpd_sasl_security_options = noanonymous
 smtpd_sasl_local_domain = $myhostname
 smtpd_sasl_type = dovecot
@@ -89,7 +93,7 @@ smtpd_tls_session_cache_timeout = 3600s
 home_mailbox = Maildir/
 message_size_limit = {{mail_size_limit}}
 
-virtual_transport = dovecot
+
 
 ## This setting will generate an error if you restart Postfix before
 ## adding the appropriate service definition in master.cf, so make
