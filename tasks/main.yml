@@ -9,6 +9,34 @@
     - '{{ postfix__base_packages }}'
   when: ansible_pkg_mgr == 'apt'
 
+- name: Create Postfix MySQL Database
+  mysql_db:
+    name: '{{postfix_mysql_database_name}}'
+    state: present
+
+- name: Create PostFix database user
+  mysql_user:
+    host: "127.0.0.1"
+    name: '{{postfix_mysql_user_name}}'
+    password: '{{postfix_mysql_password}}'
+    priv: '{{postfix_mysql_database_name}}.*:ALL'
+    state: present
+
+- name: Generate Postfix MySQL Schema Install
+  template:
+    src: 'postfix/postfixschema.sql.j2'
+    dest: '/tmp/postfixschema.sql'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+
+- name: Import Postfix MySQL Schema
+  mysql_db:
+    state: import
+    name: "{{postfix_mysql_database_name}}"
+    target: /tmp/postfixschema.sql
+
+
 - name: Generate Postfix 'main.cf' configuration
   template:
     src: 'postfix/main.cf.j2'
@@ -27,23 +55,32 @@
     mode: '0644'
   notify: [ 'Check postfix and reload' ]
 
-- name: Generate Postfix virtual alias maps configuration
+- name: Generate Postfix MySQL Configuration Files
   template:
-    src: 'postfix/virtual-alias-maps.j2'
-    dest: '/etc/postfix/virtual-alias-maps'
+    src: 'postfix/mysql-virtual-mailbox-domains.cf.j2'
+    dest: '/etc/postfix/mysql-virtual-mailbox-domains.cf'
     owner: 'root'
     group: 'root'
     mode: '0644'
-  notify: [ 'Regenerate Alias Maps' ]
+  notify: [ 'Check postfix and reload' ]
 
-- name: Generate Postfix virtual alias domains configuration
+- name: Generate Postfix MySQL Configuration Files
   template:
-    src: 'postfix/virtual-alias-domains.j2'
-    dest: '/etc/postfix/virtual-alias-domains'
+    src: 'postfix/mysql-virtual-mailbox-maps.cf.j2'
+    dest: '/etc/postfix/mysql-virtual-mailbox-maps.cf'
     owner: 'root'
     group: 'root'
     mode: '0644'
-  notify: [ 'Regenerate Domain Aliases' ]
+  notify: [ 'Check postfix and reload' ]
+
+- name: Generate Postfix MySQL Configuration Files
+  template:
+    src: 'postfix/mysql-virtual-alias-maps.cf.j2'
+    dest: '/etc/postfix/mysql-virtual-alias-maps.cf'
+    owner: 'root'
+    group: 'root'
+    mode: '0644'
+  notify: [ 'Check postfix and reload' ]
 
 - name: Generate 'alias maps' configuration
   template:

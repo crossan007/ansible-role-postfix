@@ -1,5 +1,11 @@
 postfix__base_packages: [ 'postfix', 'postfix-pcre', 'bsd-mailx', 'make',
-                          'ssl-cert', 'ca-certificates' ]
+                          'ssl-cert', 'ca-certificates', 'postfix-mysql' ]
          
 postfix__purge_packages: [ 'exim4-base', 'exim4-config',
                            'exim4-daemon-light', 'nullmailer' ]
+
+
+postfix_mysql_database_name: "postfix-{{mail_my_domain.replace('.','-')}}"
+
+
+postfix_mysql_user_name: "postfix-{{ mail_my_domain.replace('.','-') }}"

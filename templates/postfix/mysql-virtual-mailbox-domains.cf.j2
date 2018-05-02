@@ -1,0 +1,5 @@
+user = {{postfix_mysql_user_name}}
+password = {{postfix_mysql_password}}
+hosts = 127.0.0.1
+dbname = {{postfix_mysql_database_name}}
+query = SELECT 1 FROM virtual_domains WHERE name='%s'
