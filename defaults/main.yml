@@ -1,5 +1,5 @@
 postfix__base_packages: [ 'postfix', 'postfix-pcre', 'bsd-mailx', 'make',
-                          'ssl-cert', 'ca-certificates', 'postfix-mysql' ]
+                          'ssl-cert', 'ca-certificates', 'mysql-client-5.7', 'mysql-client-core-5.7', 'mysql-common', 'mysql-server', 'mysql-server-5.7', 'mysql-server-core-5.7', 'postfix-mysql', libmysqlclient-dev ]
          
 postfix__purge_packages: [ 'exim4-base', 'exim4-config',
                            'exim4-daemon-light', 'nullmailer' ]

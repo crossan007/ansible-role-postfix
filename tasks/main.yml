@@ -9,6 +9,9 @@
     - '{{ postfix__base_packages }}'
   when: ansible_pkg_mgr == 'apt'
 
+- name: Install the Python MySQLB module
+  pip: name=MySQL-python
+
 - name: Create Postfix MySQL Database
   mysql_db:
     name: '{{postfix_mysql_database_name}}'
